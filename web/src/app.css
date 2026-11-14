@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+
+@font-face {
+  font-family: "Space Mono";
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/SpaceMono-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Mono";
+  font-weight: 700;
+  font-display: swap;
+  src: url("./assets/fonts/SpaceMono-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libre Franklin";
+  font-weight: 100 900; /* variable */
+  font-display: swap;
+  src: url("./assets/fonts/LibreFranklin-var.woff2") format("woff2");
+}
+
+@theme {
+  --font-display: "Space Mono", ui-monospace, monospace;
+  --font-ui: "Libre Franklin", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #181d25;
+  --color-gray: #42464d;
+  --color-faint: #a3a5a8;
+  --color-canvas: #f4f2ef;
+  --color-card: #ffffff;
+  --color-line: rgba(24, 29, 37, 0.08);
+  --color-accent: #10b981;
+
+  --shadow-card: 0 2px 20px rgba(0, 0, 0, 0.15);
+  --shadow-btn: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark mode = same grammar, dev-tool canvas. All tokens are CSS vars,
+   so utilities flip through the cascade; only tints/shadows need explicit tweaks. */
+:root { color-scheme: light; }
+.dark {
+  color-scheme: dark;
+  --color-ink: #f2f2f0;
+  --color-gray: #aab0b8;
+  --color-faint: #6b7280;
+  --color-canvas: #0d0f12;
+  --color-card: #171a1f;
+  --color-line: rgba(255, 255, 255, 0.07);
+  --shadow-card: 0 2px 24px rgba(0, 0, 0, 0.5);
+  --shadow-btn: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* `dark:` utilities follow the class (our toggle), not the OS */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer components {
+  /* the dark ink button is THE action; everything else is text */
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-[10px] bg-ink px-5 py-2.5 font-display text-[0.85rem] font-bold uppercase tracking-[0.05em] text-canvas;
+    box-shadow: var(--shadow-btn);
+    transition: transform 50ms ease, opacity 0.2s ease;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.4; pointer-events: none; }
+
+  .btn-quiet {
+    @apply rounded-lg px-2.5 py-1 text-sm text-gray transition hover:bg-ink/5 hover:text-ink;
+  }
+
+  /* floating surface — the shadow does the work, not borders */
+  .card {
+    @apply rounded-[20px] bg-card p-7;
+    box-shadow: var(--shadow-card);
+  }
+
+  .kicker { @apply font-ui text-[1.35rem] font-thin leading-relaxed text-faint; }
+  .statement { @apply font-display text-[1.6rem] font-bold leading-[1.4] break-all text-ink; }
+  .instruction { @apply font-ui font-semibold text-ink; }
+  .label { @apply mt-4 mb-1.5 font-display text-[0.7rem] font-bold uppercase tracking-[0.12em] text-faint; }
+
+  .pill { @apply rounded-[8px] px-2 py-0.5 font-display text-[0.75rem] font-bold; }
+  .pill-ok   { background: rgba(16, 185, 129, 0.16); color: #059669; }
+  .pill-info { background: rgba(52, 152, 219, 0.16); color: #1d76ad; }
+  .pill-warn { background: rgba(217, 119, 6, 0.16);  color: #b45309; }
+  .pill-err  { background: rgba(220, 38, 38, 0.14);  color: #dc2626; }
+  .dark .pill-ok   { color: #34d399; }
+  .dark .pill-info { color: #6cbcec; }
+  .dark .pill-warn { color: #fbbf24; }
+  .dark .pill-err  { color: #f87171; }
+
+  /* banners & inline status colors — replaces the old inline-style spots */
+  .note-err  { @apply rounded-xl px-3.5 py-2.5 text-sm; background: rgba(220, 38, 38, 0.08); color: #dc2626; }
+  .note-warn { @apply rounded-xl px-3 py-2 text-[0.8rem]; background: rgba(217, 119, 6, 0.1);  color: #b45309; }
+  .tag-err   { color: #dc2626; }
+  .tag-ok    { color: #059669; }
+  .dark .note-err, .dark .tag-err { color: #f87171; }
+  .dark .note-warn { color: #fbbf24; }
+  .dark .tag-ok    { color: #34d399; }
+
+  .app-header { box-shadow: 0 1px 10px rgba(0, 0, 0, 0.08); }
+  .dark .app-header { box-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
+
+  .inp {
+    @apply w-full rounded-[10px] border border-line bg-canvas/50 px-3 py-1.5 font-ui text-sm text-ink
+           outline-none transition placeholder:text-faint focus:border-accent;
+  }
+  .inp-mono { @apply font-display text-[0.82rem]; }
+
+  .live-dot { @apply flex items-center gap-1.5 font-display text-[0.8rem] text-accent; }
+  .live-dot::before { content: ""; @apply h-[7px] w-[7px] rounded-full bg-accent; }
+  .live-off { @apply text-faint; }
+  .live-off::before { background: var(--color-faint); }
+
+  .divide-line > * + * { border-top: 1px solid var(--color-line); }
+}
+
+code.inline {
+  @apply rounded-md bg-ink/10 px-1.5 py-0.5 font-display text-[0.85em] text-gray;
+}

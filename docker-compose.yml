@@ -1,0 +1,10 @@
+# Single-container run (the supported deployment shape).
+services:
+  mockbucket:
+    build: .
+    image: mockbucket:dev
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true" # behind nginx/traefik/ingress
+      # MB_AUTO_CREATE: "true"                    # capture mints unknown buckets

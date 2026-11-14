@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# MockBucket dev tasks — everything runs in containers; the host needs only docker + git.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+DOTNET_IMG="mcr.microsoft.com/dotnet/sdk:10.0"
+NODE_IMG="node:24-alpine"
+
+# When the group isn't active yet (fresh usermod), bounce through sg with shell-safe quoting.
+docker_cmd() {
+  if docker info >/dev/null 2>&1; then docker "$@"
+  else sg docker -c "docker $(printf '%q ' "$@")"; fi
+}
+
+case "${1:-help}" in
+  build)   docker_cmd run --rm -v "$PWD:/src" -v mb-nuget:/root/.nuget/packages -w /src "$DOTNET_IMG" \
+             dotnet build MockBucket.slnx -c Release ;;
+  test)    docker_cmd run --rm -v "$PWD:/src" -v mb-nuget:/root/.nuget/packages -w /src "$DOTNET_IMG" \
+             dotnet test MockBucket.slnx -c Release ;;
+  web)     docker_cmd run --rm -v "$PWD/web:/app" -v mb-npm:/app/node_modules -w /app -p 5173:5173 "$NODE_IMG" \
+             sh -c "npm install --no-audit --no-fund && npm run dev -- --host" ;;
+  webbuild) docker_cmd run --rm -v "$PWD/web:/app" -v mb-npm:/app/node_modules -w /app "$NODE_IMG" \
+             sh -c "npm install --no-audit --no-fund && npm run build" ;;
+  app)     docker_cmd compose up --build "$@" ;;
+  image)   docker_cmd build -t mockbucket:dev . ;;
+  clean)   docker_cmd compose down 2>/dev/null || true
+           docker_cmd run --rm -v "$PWD:/src" -w /src "$DOTNET_IMG" dotnet clean MockBucket.slnx >/dev/null || true ;;
+  *) echo "usage: ./scripts/mb {build|test|web|webbuild|app|image|clean}" ;;
+esac

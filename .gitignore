@@ -1,0 +1,18 @@
+# dotnet
+bin/
+obj/
+*.user
+
+# node
+node_modules/
+dist/
+
+# runtime
+*.db
+*.log
+.env
+
+# misc
+.vscode/
+.idea/
+src/api/wwwroot/
